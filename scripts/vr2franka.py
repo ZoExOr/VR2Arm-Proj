@@ -1,19 +1,20 @@
 import time
 import numpy as np
 import threading
+import sys
+import select
+import termios
+import tty
+
 from scipy.spatial.transform import Rotation as R
 import panda_py
 from panda_py import controllers
 from panda_py import libfranka
 from oculus_reader.reader import OculusReader
+from demo_saver import save_demo
 
 oculus_reader = OculusReader()
 
-"""
-Boundary constraints to prevent the Franka arm from colliding
-with the wall, the table, or with itself.
-Defined in absolute position coordinates.
-"""
 BOUNDARY = {
     'x': (0.1, 1.4),
     'y': (-0.24, 0.35),
@@ -27,18 +28,6 @@ def get_transformation(Rm, P):
     return T
     
 def get_hand_pose_and_buttons():
-    """
-    Read hand pose (rotation + position) and button states from the Oculus controller,
-    then convert the hand pose from the "head frame" to the "robot frame".
-    
-    Returns:
-        R_hand2rbt : np.ndarray, shape (3,3)
-            Rotation matrix of the hand relative to the robot frame
-        P_hand2rbt : np.ndarray, shape (3,1)
-            Position vector of the hand relative to the robot frame
-        buttons : dict
-            Button states from the controller
-    """
     euler_head2rbt = np.array([90, 0, 0])
     R_head2rbt = R.from_euler('xyz', euler_head2rbt, degrees=True).as_matrix()
 
@@ -81,19 +70,13 @@ def clamp_pos(x_d):
     
     return x_d
 
+def get_key():
+    dr, _, _ = select.select([sys.stdin], [], [], 0)
+    if dr:
+        return sys.stdin.read(1)
+    return None
+
 def grasp(gripper):
-    """
-    Background thread that listens to the controller's 'RG' button
-    and controls the gripper accordingly.
-
-    Logic:
-    - When the RG button is pressed (rising edge) and the gripper is not holding,
-    attempt to close the gripper and grasp an object.
-    - When the RG button is released (falling edge) and the gripper is holding,
-    open the gripper to release the object.
-    - Tracks 'is_grasping' state to avoid repeated commands.
-    """
-
     is_grasping = False    
     prev_rg     = False     
 
@@ -132,7 +115,10 @@ def warm_up(move_thresh=0.05):
     The function continuously measures the controller's position and only returns 
     when the displacement exceeds the given threshold (in meters).
     """
+
+
     print("\033[1;33mInitializing... Please move the controller significantly until detection is confirmed.\033[0m")
+    print("\033[1;32mHINT:\033[0m \033[1;33mtry moving the controller \033[1;32mFASTER and with sharper motions\033[1;33m so the system can detect it more reliably\033[0m\n")
 
     _, pos_prev, _ = get_hand_pose_and_buttons()
     while True:
@@ -140,21 +126,20 @@ def warm_up(move_thresh=0.05):
         delta = float(np.linalg.norm(pos_cur - pos_prev))  
         if delta > move_thresh:
             print("\033[1;33mController movement detected, starting teleoperation in 5s...\033[0m")
+            print("\033[1;33mPlease move to a comfortable starting position.\033[0m\n")
             return
 
         pos_prev = pos_cur.copy()
         time.sleep(0.01) 
 
 
-def main():
+def run_teleop(duration=60, save_data=False, user_id="user1", task_id=1, demo_id=1, device_name="vr"):
     hostname = '172.16.0.2'
     panda = panda_py.Panda(hostname)
     gripper = libfranka.Gripper(hostname)
     panda.move_to_start()
     impedance = np.diag([600, 600, 600, 40, 40, 40])  
     # impedance = np.diag([60, 60, 60, 20, 20, 20])  
-    t_grasp = threading.Thread(target=grasp, args=(gripper,), daemon=True)
-    t_grasp.start()
 
     ctrl = controllers.CartesianImpedance(
         impedance=impedance,
@@ -170,14 +155,17 @@ def main():
         [200.0, 200.0, 200.0, 200.0, 200.0, 200.0]
     )
 
+    t_grasp = threading.Thread(target=grasp, args=(gripper,), daemon=True)
+    t_grasp.start()
+
     rot_prev, pos_prev, buttons_prev = None, None, None
     t_wait_start = time.time()
 
-    print("\033[1;33msetting up oculus reader...\033[0m")
+    print("\033[1;33mSetting up oculus reader...\033[0m")
     oculus_reader.wait_until_ready(timeout_s=5.0)
 
 
-    print("\033[1;33mpress any button to start...\033[0m")
+    print("\033[1;33mPress any button to start...\033[0m\n")
     while True:
         rot_prev, pos_prev, buttons_prev = get_hand_pose_and_buttons()
         if buttons_prev is not None:
@@ -189,7 +177,12 @@ def main():
 
     warm_up()
     time.sleep(5)
-    print("start")
+
+    print("\033[1;33m-------------------------- Teleoperation started --------------------------\033[0m\n")
+    print("--------------------------\033[1;33m Press \033[1;32mmiddle finger\033[1;33m button to \033[1;32mgrasp/release\033[1;33m --------------------------\033[0m")
+    print("--------------------------\033[1;33m Press \033[1;32mindex finger\033[1;33m button to \033[1;32mpause\033[1;33m teleop --------------------------\033[0m")
+    # print("--------------------------\033[1;33m Press \033[1;32mA\033[1;33m button to \033[1;31mstop\033[1;33m teleop --------------------------\033[0m\n")
+
     rot_prev, pos_prev, buttons_prev = get_hand_pose_and_buttons()
 
     panda.start_controller(ctrl)
@@ -212,43 +205,114 @@ def main():
     pos_scale = 2
     ori_scale = 2
 
-    with panda.create_context(frequency=90) as ctx:
-        while ctx.ok():
-            rot_curr, pos_curr, buttons_curr = get_hand_pose_and_buttons()
-            if pos_curr is None or buttons_curr is None:
-                continue
+    start_time = time.time()
+    old_settings = termios.tcgetattr(sys.stdin)
+    tty.setcbreak(sys.stdin.fileno())
 
-            d_pos = pos_scale * (pos_curr - pos_prev)
-            x_d = x0 + d_pos
+    start_time = time.time()
+    success_flag = 0
+    task_duration = 0.0
 
-            R_hand_curr = R.from_matrix(rot_curr)
-            R_delta = R_hand_curr * R_hand_ref.inv()
-            rotvec = R_delta.as_rotvec()     
-            rotvec_scaled = ori_scale * rotvec
-            R_scaled = R.from_rotvec(rotvec_scaled)
-            R_target = R_scaled * R.from_quat(q_robot_ref)
-            q_new = R_target.as_quat()
+    try:
+        with panda.create_context(frequency=90) as ctx:
+            while ctx.ok():
+                elapsed = time.time() - start_time
+                if elapsed > duration:
+                    print("\033[1;31mTime limit reached.\033[0m")
+                    break
 
-            if np.dot(q_new, q_prev) < 0:
-                q_new = -q_new  
+                rot_curr, pos_curr, buttons_curr = get_hand_pose_and_buttons()
+                if pos_curr is None or buttons_curr is None:
+                    continue
 
-            q_d = q_new
+                d_pos = pos_scale * (pos_curr - pos_prev)
+                x_d = x0 + d_pos
 
-            if exceed_boundary(x_d):
-                clamp_pos(x_d)
+                R_hand_curr = R.from_matrix(rot_curr)
+                R_delta = R_hand_curr * R_hand_ref.inv()
+                rotvec = R_delta.as_rotvec()     
+                rotvec_scaled = ori_scale * rotvec
+                R_scaled = R.from_rotvec(rotvec_scaled)
+                R_target = R_scaled * R.from_quat(q_robot_ref)
+                q_new = R_target.as_quat()
 
-            if buttons_curr['RTr']:
-                pos_prev = pos_curr
-                R_hand_ref = R.from_matrix(rot_curr)
-                q_robot_ref = q_prev.copy()
-                time.sleep(0.1)
-                continue
+                if np.dot(q_new, q_prev) < 0:
+                    q_new = -q_new  
 
-            ctrl.set_control(x_d.reshape(3, 1), q_d)
+                q_d = q_new
 
-            x0 = x_d.copy()
-            q_prev = q_new           
-            rot_prev, pos_prev, buttons_prev = rot_curr, pos_curr, buttons_curr
+                if exceed_boundary(x_d):
+                    clamp_pos(x_d)
 
-if __name__ == '__main__':
-    main()
+                if buttons_curr['RTr']:
+                    pos_prev = pos_curr
+                    R_hand_ref = R.from_matrix(rot_curr)
+                    q_robot_ref = q_prev.copy()
+                    time.sleep(0.1)
+                    continue
+
+                # if buttons_curr['A']:
+                #     success_flag = 1
+                #     task_duration = round(elapsed, 2)
+                #     print(f"\033[1;32mTask terminated by user\033[0m, duration:{task_duration}")
+                #     break
+                
+                key = get_key()
+                if key in ['y', 'Y']:
+                    success_flag = 1
+                    task_duration = round(elapsed, 2)
+                    print("\033[33m[\033[1;32msuccess\033[33m] teleop terminated. time:\033[0m", task_duration)
+                    break
+                elif key in ['n', 'N']:
+                    success_flag = 0
+                    task_duration = round(elapsed, 2)
+                    print("\033[33m[\033[1;31mfail\033[33m] teleop terminated time:\033[0m", task_duration)
+                    break
+
+                ctrl.set_control(x_d.reshape(3, 1), q_d)
+
+                x0 = x_d.copy()
+                q_prev = q_new           
+                rot_prev, pos_prev, buttons_prev = rot_curr, pos_curr, buttons_curr
+
+    except Exception as e:
+        success_flag = 0
+        task_duration = round(time.time() - start_time, 2)
+        print("\033[1;31m[Emergency/Exception detected]\033[0m", task_duration)
+
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+
+        if task_duration == 0.0:
+            task_duration = round(time.time() - start_time, 2)
+
+        if success_flag == 0:
+            task_duration = round(time.time() - start_time, 2)
+
+        if save_data:
+            save_demo(user_id, task_id, demo_id, device_name, task_duration, success_flag)
+
+        print("\033[1;32mTeleoperation finished.\033[0m. Task Duration: ", task_duration, "\n\n\n")
+        time.sleep(1)
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--duration", type=int, default=60)
+    parser.add_argument("--save", type=str, default="false")
+    parser.add_argument("--user", type=str, default="1")
+    parser.add_argument("--task", type=int, default=0)
+    parser.add_argument("--demo", type=int, default=1)
+    args = parser.parse_args()
+
+    run_teleop(
+        duration=args.duration,
+        save_data=(args.save.lower() == "true"),
+        user_id=args.user,
+        task_id=args.task,
+        demo_id=args.demo,
+        device_name="vr"
+    )
+
+    import os
+    os._exit(0)
