@@ -6,9 +6,8 @@ Collecting high-quality demonstrations is essential for imitation learning and t
 
 To bridge the gap, we present VR2ARM, a VR-based teleoperation interface for natural hand-to-robot control and supporting demonstration collection, especially for dynamic tasks.
 
-VR2Arm provides a VR-based teleoperation pipeline that enables natural hand-to-robot control on a real Franka Emika Panda robot. The system  streams the VR controller’s pose in real time, and converts it into incremental end-effector commands for the robot. As the user moves their controller, the system computes small pose deltas and sends them to the Franka through an impedance controller, producing smooth and responsive arm motion. Button inputs are used for gripper open/close and calibration, allowing the user to quickly reset alignment between the virtual and physical robot.
+VR2Arm provides a VR-based teleoperation pipeline that enables natural hand-to-robot control on a real Franka Emika Panda robot. The system streams the VR controller’s pose in real time, and converts it into incremental end-effector commands for the robot. As the user moves their controller, the system computes small pose deltas and sends them to the Franka through an impedance controller, producing smooth and responsive arm motion. Button inputs are used for gripper open/close and calibration, allowing the user to quickly reset alignment between the virtual and physical robot.
 
-The project is developed at the **[Social AI Lab, Vrije Universiteit Amsterdam (VU)](https://www.socialai.nl/)**.
 
 <img width="1587" height="595" alt="vr_workflow" src="https://github.com/user-attachments/assets/8f7d3d5f-ab3b-4c12-b43c-5ca4ca46c583" />
 
@@ -54,7 +53,6 @@ pip install -r requirements.txt
 ### 4. Install Oculus Reader
 
 Setup instructions: https://github.com/rail-berkeley/oculus_reader
-> Note: If you are part of the **Social AI Lab**, you do **not** need to download Meta Horizon, since the VR system there is already deployed. You only need to download **ADB**.
 
 ### 6. Install panda-py
 
