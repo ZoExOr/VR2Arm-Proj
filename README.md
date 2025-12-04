@@ -1,13 +1,16 @@
-# VR2Arm: VR-Based Teleoperation Across Simulation and Reality
+# VR2Arm: VR Teleoperation for Real-Robot Manipulation
 
 ## Overview
-Collecting high-quality human demonstrations is crucial for advancing human-robot interaction, but existing tools like SpaceMouse and keyboard are unintuitive and limited to simple, slow-paced tasks (e.g., pick-and-place). 
 
-We present a VR-based teleoperation pipeline for natural hand-to-robot control, validated in simulation (LIBERO, a novel benchmark for robot manipulation) and on a Franka Panda robot. Our system runs at 90 FPS (vs. ~20 FPS in prior work) and supports not only basic manipulation tasks but also demanding real-world dynamic scenarios such as flipping an object in a pan, demonstrating strong potential for advancing human-robot interaction research.
+Collecting high-quality demonstrations is essential for imitation learning and teleoperation research. However, widely used interfaces like the SpaceMouse and keyboard often feel unnatural and restrict users to discrete, segmented motions. These limitations make it difficult to collect demonstrations for dynamic tasks that require reactive, continuous control on real robots.
+
+To bridge the gap, we present VR2ARM, a VR-based teleoperation interface for natural hand-to-robot control and supporting demonstration collection, especially for dynamic tasks.
+
+VR2Arm provides a VR-based teleoperation pipeline that enables natural hand-to-robot control on a real Franka Emika Panda robot. The system  streams the VR controller’s pose in real time, and converts it into incremental end-effector commands for the robot. As the user moves their controller, the system computes small pose deltas and sends them to the Franka through an impedance controller, producing smooth and responsive arm motion. Button inputs are used for gripper open/close and calibration, allowing the user to quickly reset alignment between the virtual and physical robot.
 
 The project is developed at the **[Social AI Lab, Vrije Universiteit Amsterdam (VU)](https://www.socialai.nl/)**.
 
-
+<img width="1587" height="595" alt="vr_workflow" src="https://github.com/user-attachments/assets/8f7d3d5f-ab3b-4c12-b43c-5ca4ca46c583" />
 
 ## File Structure
 ```
@@ -15,7 +18,7 @@ VR2Arm-Proj/
 ├── scripts/
 │   ├── env_wrappers.py   # LIBERO Environment wrappers
 │   ├── vr2franka.py      # Teleoperation script for Franka Panda
-│   └── vr2libero.py      # Teleoperation script for LIBERO
+│   └── vr2libero.py      # We include a teleoperation script for simulation (LIBERO), as we first validated the pipeline in simulation before deploying it on the real Franka robot
 ├── APK/
 │   ├── teleop-debug.apk   # customized build of oculus_reader for teleoperation
 ├── README.md             # Project documentation
@@ -53,11 +56,6 @@ pip install -r requirements.txt
 Setup instructions: https://github.com/rail-berkeley/oculus_reader
 > Note: If you are part of the **Social AI Lab**, you do **not** need to download Meta Horizon, since the VR system there is already deployed. You only need to download **ADB**.
 
-### 5. Install LIBERO
-
-Follow the official LIBERO setup instructions: https://github.com/Lifelong-Robot-Learning/LIBERO
-> Note: You only need to install the `libero` package. You do **not** need to download the demonstration dataset.
-
 ### 6. Install panda-py
 
 Setup instructions: https://github.com/JeanElsner/panda-py
@@ -76,14 +74,13 @@ pip install panda_python-0.7.5+libfranka.0.10.0-cp38-cp38-manylinux_2_17_x86_64.
 
 1. Make sure all dependencies are installed.
 2. Make sure the customized version of `oculus_reader` is installed.
-3. Connect your Oculus Quest 3 to the laptop via cable.  
-4. For **simulation teleoperation**: align the Quest 3 orientation with the laptop.  
+3. Connect your Oculus Quest 3 to the laptop via cable.   
 5. For **Franka teleoperation**: place the Quest 3 to the **left** of the laptop, with its cameras facing sideways.
 6. Ensure the headset cameras have an unobstructed view of your controller during teleoperation. **Do not block the cameras**, for example by moving the controller under the desk.
 
    
 **Illustration of teleoperation setup**  
-   <img width="693" height="186" alt="示意图 drawio" src="https://github.com/user-attachments/assets/96a89b1a-8c2c-4ff3-a49b-b975b8892b50" />
+   <img width="693" height="186" alt="VR Setup" src="https://github.com/user-attachments/assets/96a89b1a-8c2c-4ff3-a49b-b975b8892b50" />
 
 6. Run the corresponding script for teleoperation.
 
