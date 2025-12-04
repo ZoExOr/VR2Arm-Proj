@@ -25,7 +25,7 @@ VR2Arm-Proj/
 ```
 
 ## Setup the project
-> Note: This setup has been tested in the Social AI Lab environment. Minor adjustments may be required depending on local system configurations.
+> Note: Minor adjustments may be required depending on local system configurations.
 
 ### Hardware and System Requirements
 - **Oculus Quest 3 controllers** (currently supports right-hand controller only)  
