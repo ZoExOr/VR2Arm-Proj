@@ -1,13 +1,30 @@
 # VR2Arm: VR Teleoperation for Real-Robot Manipulation
 
+
+[Yijun Zhou](https://zoexor.github.io), [Muhan Hou](https://scholar.google.com/citations?user=iFKR-JAAAAAJ&hl=en), [Kim Baraka](https://www.kimbaraka.com/)
+
 ## Overview
 
-Collecting high-quality demonstrations is essential for imitation learning and teleoperation research. However, widely used interfaces like the SpaceMouse and keyboard often feel unnatural and restrict users to discrete, segmented motions. These limitations make it difficult to collect demonstrations for dynamic tasks that require reactive, continuous control on real robots.
+The project is developed at the **[Social AI Lab, Vrije Universiteit Amsterdam (VU)](https://www.socialai.nl/)**.
 
-To bridge the gap, we present VR2ARM, a VR-based teleoperation interface for natural hand-to-robot control and supporting demonstration collection, especially for dynamic tasks.
+In this work, we introduce VR2Arm, a VR-controller-based teleoperation interface. By enabling an intuitive hand-to-robot control pipeline, VR2Arm allows users to collect high-quality demonstrations on a real Franka Emika Panda robot, with particular advantages in dynamic tasks that require reactive and continuous motion.
+<img width="80%" height=auto alt="image" src="https://github.com/user-attachments/assets/8b16c0fe-a6ed-4456-b95a-7376b9b0ce9d" />
 
-VR2Arm provides a VR-based teleoperation pipeline that enables natural hand-to-robot control on a real Franka Emika Panda robot. The system streams the VR controller’s pose in real time, and converts it into incremental end-effector commands for the robot. As the user moves their controller, the system computes small pose deltas and sends them to the Franka through an impedance controller, producing smooth and responsive arm motion. Button inputs are used for gripper open/close and calibration, allowing the user to quickly reset alignment between the virtual and physical robot.
+### How VR2ARM works
+- Install the required dependencies (listed below)
+- Place the headset in front of you
+- Intuitive hand-to-robot control: move and rotate the controller to control the end-effector
+- Front button for calibration; side button to grasp and release the gripper
 
+### Key highlights
+- Improved user task performance: higher success rates (especially on dynamic tasks), shorter successful execution times across tasks, and earlier successes across attempts
+
+- Better user experience: significantly lower workload and higher usability
+  
+### To check our paper:
+[link to be filled]
+
+# Try it out!
 
 ## File Structure
 ```
