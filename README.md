@@ -22,7 +22,7 @@ In this work, we introduce VR2Arm, a VR-controller-based teleoperation interface
 - Better user experience: significantly lower workload and higher usability
   
 ### To check our paper:
-[link to be filled]
+[Static Is Not Enough: A Comparative Study of VR and SpaceMouse in Static and Dynamic Teleoperation Tasks](https://arxiv.org/abs/2601.13042)
 
 # Try it out!
 
