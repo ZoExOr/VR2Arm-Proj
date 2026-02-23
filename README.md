@@ -42,10 +42,27 @@ VR2Arm-Proj/
 ## Setup the project
 > Note: Minor adjustments may be required depending on local system configurations.
 
-### Hardware and System Requirements
+
+## Hardware and System Requirements
 - **Oculus Quest 3 controllers** (currently supports right-hand controller only)  
 - **Ubuntu 20.04** (other platforms not yet tested)  
 - **Python 3.8** recommended  
+
+---
+
+## Hardware Setup
+
+### Franka Emika Research 3
+For detailed instructions on initializing the robot arm, please refer to the documentation:
+> [Getting Started with Franka Emika Research 3](https://socialrobotics.atlassian.net/wiki/spaces/CBSR/pages/2412675074/Getting+started+with+Franka+Emika+Research+3)
+
+### Oculus Quest 3
+1.  **Connection:** Connect the headset to your PC via USB and click **"USB detected"** inside the Quest 3.
+2.  **Terminal Setup:** Follow the yellow highlighted instructions in your terminal.
+3.  **Activation:** When the message `"setting up oculus reader..."` appears, put on the headset to activate the sensors and proceed.
+
+---
+## Dependencies Setup
 
 ### 1. Clone the repository
 ```bash
