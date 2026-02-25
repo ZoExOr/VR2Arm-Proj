@@ -97,7 +97,7 @@ pip install panda_python-0.7.5+libfranka.0.10.0-cp38-cp38-manylinux_2_17_x86_64.
 
 ## How to install our customized version of `oculus_reader`
 1. Put `teleop-debug.apk` in `oculus_reader/oculus_reader/APK`, replacing the original APK.
-2. Reinstall APK with `python oculus_reader/install.py --reinstall`
+2. Reinstall APK with `python oculus_reader/install.py --install`
 > Note: The FPS should be 90 if installed correctly.
 
 ## Usage
