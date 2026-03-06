@@ -2,3 +2,4 @@ numpy
 scipy
 oculus_reader
 panda-python
+#libero   # if you want to test in simulation
