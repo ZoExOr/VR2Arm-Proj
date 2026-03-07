@@ -82,9 +82,24 @@ conda activate vr2arm
 pip install -r requirements.txt
 ```
 
-### 4. Install Oculus Reader
+### 4. Install [Modified Oculus Reader](https://github.com/ZoExOr/oculus_reader_modified) as dependency
 
-Setup instructions: https://github.com/rail-berkeley/oculus_reader
+```bash
+pip install git+https://github.com/ZoExOr/oculus_reader_modified.git
+```
+
+### 5. Set up ADB
+
+
+Before running the reader, ensure your hardware is configured correctly. Follow the official [ADB Setup Guide](https://github.com/rail-berkeley/oculus_reader?tab=readme-ov-file#setup-of-the-adb) from the original repository to enable communication with your headset.
+
+To test:
+```bash
+# Ensure you are in the project root
+python oculus_reader/reader.py
+```
+> Note: If the installation and ADB connection are successful, the frequency output should stabilize at 90 FPS.
+
 
 ### 6. Install panda-py
 
@@ -94,11 +109,6 @@ Setup instructions: https://github.com/JeanElsner/panda-py
 ```
 pip install panda_python-0.7.5+libfranka.0.10.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 ```
-
-## How to install our customized version of `oculus_reader`
-1. Put `teleop-debug.apk` in `oculus_reader/oculus_reader/APK`, replacing the original APK.
-2. Reinstall APK with `python oculus_reader/install.py --install`
-> Note: The FPS should be 90 if installed correctly.
 
 ## Usage
 
