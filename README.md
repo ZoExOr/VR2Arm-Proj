@@ -1,12 +1,19 @@
 # VR2Arm: VR Teleoperation for Real-Robot Manipulation
 
+<p align="center">
+  <a href="https://zoexor.github.io">Yijun Zhou</a>, 
+  <a href="https://mh-hou.github.io">Muhan Hou</a>, 
+  <a href="https://www.kimbaraka.com/">Kim Baraka</a>
+</p>
 
-[Yijun Zhou](https://zoexor.github.io), [Muhan Hou](https://mh-hou.github.io), [Kim Baraka](https://www.kimbaraka.com/)
+<p align="center">
+  <a href="https://arxiv.org/abs/2601.13042"><strong>Paper</strong></a> 
+  &nbsp; | &nbsp; 
+  <a href="https://zoexor.github.io/vr2arm-page/"><strong>Website</strong></a>
+</p>
 
-[Page](https://arxiv.org/abs/2601.13042)  | [Website](https://zoexor.github.io/vr2arm-page/)
 
 ## Overview
-
 The project is developed at the **[Social AI Lab, Vrije Universiteit Amsterdam (VU)](https://www.socialai.nl/)**.
 
 In this work, we introduce VR2Arm, a VR-controller-based teleoperation interface. By enabling an intuitive hand-to-robot control pipeline, VR2Arm allows users to collect high-quality demonstrations on a real Franka Emika Panda robot, with particular advantages in dynamic tasks that require reactive and continuous motion.
