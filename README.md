@@ -1,7 +1,9 @@
 # VR2Arm: VR Teleoperation for Real-Robot Manipulation
 
 
-[Yijun Zhou](https://zoexor.github.io), [Muhan Hou](https://scholar.google.com/citations?user=iFKR-JAAAAAJ&hl=en), [Kim Baraka](https://www.kimbaraka.com/)
+[Yijun Zhou](https://zoexor.github.io), [Muhan Hou](https://mh-hou.github.io), [Kim Baraka](https://www.kimbaraka.com/)
+
+[Page](https://arxiv.org/abs/2601.13042)  | [Website](https://zoexor.github.io/vr2arm-page/)
 
 ## Overview
 
