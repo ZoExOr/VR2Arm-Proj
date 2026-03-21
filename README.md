@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://dl.acm.org/doi/10.1145/3776734.37944052"><strong>Paper</strong></a> 
+  <a href="https://dl.acm.org/doi/10.1145/3776734.3794405"><strong>Paper</strong></a> 
   &nbsp; | &nbsp; 
   <a href="https://zoexor.github.io/vr2arm-page/"><strong>Website</strong></a>
 </p>
